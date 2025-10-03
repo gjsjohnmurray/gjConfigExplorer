@@ -5,6 +5,7 @@ import * as irisNative from '@intersystems/intersystems-iris-native';
 import * as cp from 'child_process';
 import { IRISConnection } from './iris';
 import { containerName, hasDocker, setupStructurizrLiteCommand } from './structurizrLite';
+import { monkeyWorkspace } from './monkeyWorkspace';
 //import { makeRESTRequest } from './makeRESTRequest';
 
 interface IHosts {
@@ -15,19 +16,22 @@ export const extensionId = "georgejames.config-explorer";
 
 export let extensionUri: vscode.Uri;
 export let logChannel: vscode.LogOutputChannel;
-export let dslUri: vscode.Uri;
+export let jsonUri: vscode.Uri;
 
 let serverManagerApi: serverManager.ServerManagerAPI;
 
 export async function activate(context: vscode.ExtensionContext) {
 
 	extensionUri = context.extensionUri;
-	dslUri = context.globalStorageUri;
-	await vscode.workspace.fs.createDirectory(dslUri);
-	dslUri = dslUri.with({ path: dslUri.path + '/workspace.dsl' });
+	jsonUri = context.globalStorageUri;
+	await vscode.workspace.fs.createDirectory(jsonUri);
+	jsonUri = jsonUri.with({ path: jsonUri.path + '/workspace.json' });
 	logChannel = vscode.window.createOutputChannel('gj :: configExplorer', { log: true});
 	logChannel.info('Extension activated');
-	logChannel.debug(`DSL file will be written at ${dslUri.fsPath}`);
+	logChannel.debug(`JSON file will be written at ${jsonUri.fsPath}`);
+
+	const json = JSON.stringify(monkeyWorkspace.toDto());
+	await vscode.workspace.fs.writeFile(jsonUri, new TextEncoder().encode(json));
 
 	const serverManagerExt = vscode.extensions.getExtension(serverManager.EXTENSION_ID);
 	if (!serverManagerExt) {

@@ -7,7 +7,7 @@ import {
 	commands,
 	env,
 } from 'vscode';
-import { dslUri, extensionId, logChannel } from './extension';
+import { jsonUri, extensionId, logChannel } from './extension';
 
 export let containerName: string;
 let litePort: number
@@ -25,8 +25,8 @@ export function setupStructurizrLiteCommand(context: ExtensionContext) {
                 portfinder.getPort(function (_: any, port: any) {
                     litePort = port;
                     containerName = createRandomString();
-                    const ws = path.dirname(dslUri.fsPath);
-                    logChannel.info(`Starting Structurizr Lite container ${containerName} on port ${port} for workspace ${ws}/ ...`);
+                    const ws = path.dirname(jsonUri.fsPath);
+                    logChannel.info(`Starting Structurizr Lite container ${containerName} on port ${port} to view ${jsonUri.fsPath}`);
                     
                     cp.exec(`docker run -p 127.0.0.1:${port}:8080 --name ${containerName} -v "${ws}:/usr/local/structurizr" structurizr/lite:latest`,
                         function (error, stdout, stderr) {
