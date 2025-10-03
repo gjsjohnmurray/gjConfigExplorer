@@ -1,0 +1,18 @@
+# Run 'vsce ls' to verify that the following lines exclude everything not needed in the VSIX.
+
+**
+!dist/*.dll
+!dist/*.dylib
+!dist/*.so
+!dist/*.js
+!dist/*.node
+!dist/*.txt
+!node_modules/
+!out/
+!images/
+!CHANGELOG.md
+!LICENSE
+!README.md
+!package.json
+!package.nls.json
+!server/

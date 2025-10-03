@@ -1,0 +1,119 @@
+{
+  "name": "config-explorer",
+  "displayName": "gj :: configExplorer",
+  "description": "Use Structurizr diagrams to explore the configurations of InterSystems IRIS servers defined in InterSystems Server Manager",
+  "version": "0.0.1-SNAPSHOT",
+  "preview": true,
+  "publisher": "georgejames",
+  "icon": "images/logo.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gjsjohnmurray/gjConfigExplorer"
+  },
+  "license": "MIT",
+  "keywords": [
+    "intersystems",
+    "iris"
+  ],
+  "contributors": [
+    {
+      "name": "John Murray",
+      "email": "johnm@georgejames.com"
+    }
+  ],
+  "engines": {
+    "vscode": "^1.104.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "private": true,
+  "extensionDependencies": [
+    "intersystems-community.servermanager"
+  ],
+  "activationEvents": [
+  ],
+  "Xmain": "./dist/extension.js",
+  "main": "./out/extension",
+  "contributes": {
+    "configuration": {
+      "title": "gj :: configExplorer",
+      "properties": {
+        "gjConfigExplorer.servers": {
+          "type": "object",
+          "markdownDescription": "`server` targets for exploring, which are themselves defined in `#intersystems.servers#`.",
+          "scope": "resource",
+          "patternProperties": {
+            "[a-z0-9-_~]+": {
+              "type": "object",
+              "markdownDescription": "Specify an entry defined in `intersystems.servers`. That entry must have its `superServer` object property defined.",
+              "description": "server",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Include this server in the diagrams.",
+                  "default": true
+                }
+              },
+              "default": {
+                "enabled": true
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "georgejames.config-explorer.explore",
+        "category": "gj :: configExplorer",
+        "title": "Explore InterSystems IRIS Configuration"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+		"pretest": "npm run compile",
+		"test": "node ./out/test/runTest.js"
+  },
+
+  "Xscripts": {
+    "vscode:prepublish": "npm run webpack",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "webpack": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "dependencies": {
+    "@intersystems/intersystems-iris-native": "^2.0.2",
+    "@intersystems-community/intersystems-servermanager": "^3.10.2",
+    "axios": "^1.12.2"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.0.0",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.104.0",
+    "@types/ws": "^8.18.1",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.45.0",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^8.24.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "node-loader": "^2.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.6.3",
+    "webpack": "^5.102.0",
+    "webpack-cli": "^4.10.0"
+  }
+}
