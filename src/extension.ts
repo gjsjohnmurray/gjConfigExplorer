@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from 'vscode';
 import * as serverManager from '@intersystems-community/intersystems-servermanager';
+import * as irisNative from '@intersystems/intersystems-iris-native';
 import { IRISConnection } from './iris';
 //import { makeRESTRequest } from './makeRESTRequest';
 
@@ -33,8 +34,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand(`${extensionId}.explore`, async () => {
 			logChannel.info('Explore command invoked');
 			const scope: vscode.ConfigurationScope | undefined= undefined;
-			const serverName = 'dem-deltanji';
-			//const serverName = 'dem-dev-nocredentials';
+			const serverName = await serverManagerApi.pickServer();
+			if (!serverName) {
+				return;
+			}
+			
 			const serverSpec: serverManager.IServerSpec | undefined = await serverManagerApi.getServerSpec(serverName, scope);
 			if (!serverSpec) {
 				vscode.window.showErrorMessage(`Server '${serverName}' unknown`);
@@ -61,14 +65,56 @@ export async function activate(context: vscode.ExtensionContext) {
 				}
 			}
 
-			logChannel.info(`Spec: ${JSON.stringify(serverSpec)}`);
 			const irisConnection = new IRISConnection(serverSpec);
-			logChannel.info(`irisConnection: ${JSON.stringify(!!irisConnection.iris)}`);
+			if (!irisConnection.connection || !irisConnection.iris) {
+				vscode.window.showErrorMessage(`Cannot connect to server '${serverName}'`);
+			}
+			else {
+				logChannel.info(`Connected to server '${serverName}'`);
+			}
 
-			if (!irisConnection.iris) {
-				vscode.window.showErrorMessage(`No IRIS connection for server '${serverName}'`);
+			if (!irisConnection.connection || !irisConnection.iris) {
+				vscode.window.showErrorMessage(`No usable IRIS connection for server '${serverName}'`);
 				return;
 			}
+
+			let sc: irisNative.IRISReturnType | null;
+			let oResultSet: irisNative.IRISObject | null;
+			logChannel.info(`Server version is ${irisConnection.iris.getServerVersion()}`);
+			logChannel.info(`$system.GetUniqueInstanceName(0) = ${irisConnection.iris.classMethodString('%SYS.System', 'GetUniqueInstanceName', 0)}`);
+
+			const list = irisConnection.iris.classMethodIRISList('Config.Startup', 'GetList');
+			logChannel.debug('Config.Startup: sc=' + list.getString(1));
+			const dataList = list.getIRISList(2);
+			const output = [`Config.Startup (${dataList.count()} items):`];
+			for (let index = 0; index < dataList.count(); index++) {
+				const element = dataList.getIRISList(index + 1);
+				output.push(` ${element.getString(1)}=${element.getString(2)}`);
+			}
+			logChannel.info(output.join('\n'));
+
+			oResultSet = (irisConnection.iris.classMethodObject('%ResultSet', '%New', 'SYS.ECP:ServerList') as irisNative.IRISObject);
+			if (oResultSet === null) {
+				logChannel.warn('Error creating %ResultSet for SYS.ECP:ServerList');
+			}
+			else {
+				sc = oResultSet.invoke('Execute');
+				if (!sc) {
+					logChannel.warn('Error executing query' + sc);
+					irisConnection.connection.close();
+					return;
+				}
+				logChannel.debug(`Query ${oResultSet.getString('QueryName')} executed successfully`);
+
+				while (oResultSet.invokeBoolean('%Next')) {
+					const sServerName = oResultSet.invokeString('Get', 'Server Name');
+					const sStatus = oResultSet.invokeString('Get', 'Status');
+					const sIPAddress = oResultSet.invokeString('Get', 'IP Address');
+					const iIPPort = oResultSet.invokeString('Get', 'IP Port');
+					logChannel.info('Server: ' + sServerName + ', Status: ' + sStatus + ', IP: ' + sIPAddress + ', Port: ' + iIPPort);
+				}
+			}
+			irisConnection.dispose();
 		})
 	);
 }
