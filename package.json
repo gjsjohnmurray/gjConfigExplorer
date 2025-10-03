@@ -70,6 +70,11 @@
         "command": "georgejames.config-explorer.explore",
         "category": "gj :: configExplorer",
         "title": "Explore InterSystems IRIS Configuration"
+      },
+      {
+        "command": "georgejames.config-explorer.renderInStructurizrLite",
+        "category": "gj :: configExplorer",
+        "title": "Render in Structurizr Lite"
       }
     ]
   },
@@ -96,7 +101,8 @@
   "dependencies": {
     "@intersystems/intersystems-iris-native": "^2.0.2",
     "@intersystems-community/intersystems-servermanager": "^3.10.2",
-    "axios": "^1.12.2"
+    "axios": "^1.12.2",
+    "portfinder": "^1.0.38"
   },
   "devDependencies": {
     "@types/glob": "^8.0.0",

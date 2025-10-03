@@ -2,7 +2,9 @@
 import * as vscode from 'vscode';
 import * as serverManager from '@intersystems-community/intersystems-servermanager';
 import * as irisNative from '@intersystems/intersystems-iris-native';
+import * as cp from 'child_process';
 import { IRISConnection } from './iris';
+import { containerName, hasDocker, setupStructurizrLiteCommand } from './structurizrLite';
 //import { makeRESTRequest } from './makeRESTRequest';
 
 interface IHosts {
@@ -13,14 +15,19 @@ export const extensionId = "georgejames.config-explorer";
 
 export let extensionUri: vscode.Uri;
 export let logChannel: vscode.LogOutputChannel;
+export let dslUri: vscode.Uri;
 
 let serverManagerApi: serverManager.ServerManagerAPI;
 
 export async function activate(context: vscode.ExtensionContext) {
 
 	extensionUri = context.extensionUri;
+	dslUri = context.globalStorageUri;
+	await vscode.workspace.fs.createDirectory(dslUri);
+	dslUri = dslUri.with({ path: dslUri.path + '/workspace.dsl' });
 	logChannel = vscode.window.createOutputChannel('gj :: configExplorer', { log: true});
 	logChannel.info('Extension activated');
+	logChannel.debug(`DSL file will be written at ${dslUri.fsPath}`);
 
 	const serverManagerExt = vscode.extensions.getExtension(serverManager.EXTENSION_ID);
 	if (!serverManagerExt) {
@@ -30,6 +37,14 @@ export async function activate(context: vscode.ExtensionContext) {
 	  await serverManagerExt.activate();
 	}
     serverManagerApi = serverManagerExt.exports;
+
+
+	if (!hasDocker()) {
+		throw new Error(`The 'gj :: configExplorer' extension requires Docker Engine to be installed`);
+	}
+	
+	setupStructurizrLiteCommand(context);
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(`${extensionId}.explore`, async () => {
 			logChannel.info('Explore command invoked');
@@ -119,4 +134,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 }
 
-export function deactivate() {}
+export function deactivate() {
+	logChannel.debug('Extension deactivated');
+	if (containerName) {
+		logChannel.debug(`Remove Structurizr Lite container ${containerName}`);
+		cp.execSync(`docker rm -f ${containerName}`, { stdio: 'ignore' });
+	}
+}
