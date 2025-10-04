@@ -70,11 +70,6 @@
         "command": "georgejames.config-explorer.explore",
         "category": "gj :: configExplorer",
         "title": "Explore InterSystems IRIS Configuration"
-      },
-      {
-        "command": "georgejames.config-explorer.renderInStructurizrLite",
-        "category": "gj :: configExplorer",
-        "title": "Render in Structurizr Lite"
       }
     ]
   },

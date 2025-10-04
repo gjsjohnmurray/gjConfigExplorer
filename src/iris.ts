@@ -4,8 +4,9 @@ import { logChannel } from './extension';
 import * as irisNative from '@intersystems/intersystems-iris-native';
 
 export class IRISConnection extends Disposable{
-	public connection: irisNative.Connection | null = null;
-	public iris: irisNative.Iris | null = null;
+	public readonly connection: irisNative.Connection | null = null;
+	public readonly iris: irisNative.Iris | null = null;
+	public readonly serverSpec: serverManager.IServerSpec | null = null;
 	constructor(serverSpec: serverManager.IServerSpec) {
 		super(() => {
 			logChannel.debug(`IRISConnection disposed`);
@@ -24,6 +25,8 @@ export class IRISConnection extends Disposable{
 			}
 			logChannel.debug('Closed connection');
 		});
+
+		this.serverSpec = serverSpec;
 
 		const connectionInfo: irisNative.ConnectionInfo = {
 			host: serverSpec.superServer?.host ?? serverSpec.webServer.host,
