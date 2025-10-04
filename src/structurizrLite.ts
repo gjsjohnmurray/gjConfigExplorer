@@ -39,7 +39,7 @@ export class StructurizrLite {
                 cancellable: false,
                 },
                 async (progress) => {
-                    const SECS_TO_WAIT = 30;
+                    const SECS_TO_WAIT = 45;
                     const SECS_PER_STEP = 1;
                     const start = Date.now();
                     logChannel.debug(`Waiting ${SECS_TO_WAIT} seconds for Structurizr Lite to start...`);
