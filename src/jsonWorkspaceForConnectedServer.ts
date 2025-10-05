@@ -1,7 +1,8 @@
-import { AutomaticLayout, Container, ElementStyle, Location, RankDirection, Shape, SoftwareSystem, Workspace } from "structurizr-typescript";
+import { AutomaticLayout, Component, Container, ElementStyle, Location, RankDirection, Shape, SoftwareSystem, Workspace } from "structurizr-typescript";
 import { IRISConnection } from "./iris";
 import * as irisNative from '@intersystems/intersystems-iris-native';
 import { logChannel } from "./extension";
+import { getPortalUrl } from "./getPortalUrl";
 
 export function workspaceForConnectedServer(irisConnection: IRISConnection): Workspace | undefined {
     if (!irisConnection.connection || !irisConnection.iris) {
@@ -32,19 +33,35 @@ export function workspaceForConnectedServer(irisConnection: IRISConnection): Wor
     style.background = '#ffffff';
     workspace.views.configuration.styles.addElementStyle(style);
 
+    style = new ElementStyle('aNamespace');
+    style.shape = Shape.Folder;
+    style.stroke = '#000000';
+    style.color = '#000000';
+    style.background = '#fb9c05';
+    workspace.views.configuration.styles.addElementStyle(style);
+
+    style = new ElementStyle('aPseudoNamespace');
+    style.shape = Shape.Folder;
+    style.color = '#000000';
+    style.background = '#b0b0b0';
+    workspace.views.configuration.styles.addElementStyle(style);
+
     const user = workspace.model.addPerson('User', 'uses the server')!;
     const softwareSystem = workspace.model.addSoftwareSystem(
-        `'${irisConnection.serverSpec?.name}' and connected servers`,
-        `Includes ECP data servers used by this server`
+        `'${irisConnection.serverSpec?.name}'`,
+        `Includes ECP data servers used by this server`,
+        Location.Internal
     )!;
-    softwareSystem.location = Location.Internal;
-    user.uses(softwareSystem, 'use web applications');
+    user.uses(softwareSystem, 'uses applications');
 
     const focusedServer = softwareSystem.addContainer(
         `${irisConnection.serverSpec?.name}`,
         `Instance '${uniqueInstanceName}'`,
         'InterSystems server'
     )!;
+    if (irisConnection.serverSpec) {
+        focusedServer.url = getPortalUrl(irisConnection.serverSpec);
+    }
 
     const autoLayout = new AutomaticLayout();
     autoLayout.rankDirection = RankDirection.TopBottom;
@@ -69,7 +86,9 @@ export function workspaceForConnectedServer(irisConnection: IRISConnection): Wor
     viewContainer.addNearestNeighbours(focusedServer);
     viewContainer.automaticLayout = autoLayout;
 
-    addDatabases(irisConnection, focusedServer);
+    const dbComponents = addDatabases(irisConnection, focusedServer);
+    const nsComponents = addNamespaces(irisConnection, focusedServer, dbComponents);
+
     const viewComponents = workspace.views.createComponentView(
         focusedServer,
         'server-components',
@@ -131,33 +150,35 @@ function addECPServers(irisConnection: IRISConnection, softwareSystem: SoftwareS
             `At ${sAddress}:${iPort}`,
             'ECP data server'
         )!;
+        ecpServer.url = getPortalUrl(irisConnection.serverSpec, '/csp/sys/mgr/%25CSP.UI.Portal.ECPDataServers.zen');
         focusedServer.uses(ecpServer, 'ECPs to');
 
     } while (oResultSet.invokeBoolean('%Next'));
 }
 
-function addDatabases(irisConnection: IRISConnection, focusedServer: Container) {
+function addDatabases(irisConnection: IRISConnection, focusedServer: Container): Map<string, Component> {
+    const dbComponents = new Map<string, Component>();
     if (!irisConnection.connection || !irisConnection.iris) {
-        return;
+        return dbComponents;
     }
 
     const oResultSet = (irisConnection.iris.classMethodObject('%ResultSet', '%New', 'Config.Databases:List') as irisNative.IRISObject);
     if (oResultSet === null) {
         logChannel.warn('Error creating %ResultSet for Config.Databases:List');
-        return;
+        return dbComponents;
     }
 
     const sc: irisNative.IRISReturnType | null = oResultSet.invoke('Execute');
     if (!sc) {
         logChannel.warn('Error executing query' + sc);
         irisConnection.connection.close();
-        return;
+        return dbComponents;
     }
     logChannel.debug(`Query ${oResultSet.getString('QueryName')} executed successfully`);
 
     if (!oResultSet.invokeBoolean('%Next')) {
         logChannel.debug('No databases found');
-        return;
+        return dbComponents;
     }
 
     do {
@@ -165,14 +186,85 @@ function addDatabases(irisConnection: IRISConnection, focusedServer: Container) 
         const sDirectory = oResultSet.invokeString('Get', 'Directory');
         const sServer = oResultSet.invokeString('Get', 'Server');
         logChannel.debug('Database: ' + sName + ', Directory: ' + sDirectory + ', Server: ' + sServer);
-
-        const database = focusedServer.addComponent(
-            `Database: ${sName}`,
-            `${sServer ? `On ECP server ${sServer}` : 'Local'} at ${sDirectory}`,
-            sServer ? 'rdb' : 'db',
-            sServer ? 'Remote database' : 'Local database'
-        )!;
-        database.tags.add(sServer ? 'aRemoteDatabase' : sName?.startsWith('IRIS') ? 'aSystemDatabase' : 'aDatabase');
+        if (sName) {
+            const database = focusedServer.addComponent(
+                `${sName} database`,
+                `${sServer ? `On ECP server ${sServer}` : 'Local'} at ${sDirectory}`,
+                sServer ? 'rdb' : 'db',
+                sServer ? 'Remote database' : 'Local database'
+            )!;
+            if (sServer) {
+                database.url = getPortalUrl(irisConnection.serverSpec, '/csp/sys/mgr/%25CSP.UI.Portal.RemoteDatabases.zen');
+            }
+            else {
+                database.url = getPortalUrl(irisConnection.serverSpec, '/csp/sys/op/%25CSP.UI.Portal.DatabaseDetails.zen', `$ID1=${sDirectory}&DBName=${sName}`);
+            }
+            dbComponents.set(sName, database);
+            database.tags.add(sServer ? 'aRemoteDatabase' : sName?.startsWith('IRIS') ? 'aSystemDatabase' : 'aDatabase');
+        }
 
     } while (oResultSet.invokeBoolean('%Next'));
+    return dbComponents;
+}
+
+function addNamespaces(irisConnection: IRISConnection, focusedServer: Container, dbComponents: Map<string, Component>): Map<string, Component> {
+    const nsComponents = new Map<string, Component>();
+    if (!irisConnection.connection || !irisConnection.iris) {
+        return nsComponents;
+    }
+
+    const oResultSet = (irisConnection.iris.classMethodObject('%ResultSet', '%New', 'Config.Namespaces:List') as irisNative.IRISObject);
+    if (oResultSet === null) {
+        logChannel.warn('Error creating %ResultSet for Config.Namespaces:List');
+        return nsComponents;
+    }
+
+    const sc: irisNative.IRISReturnType | null = oResultSet.invoke('Execute');
+    if (!sc) {
+        logChannel.warn('Error executing query' + sc);
+        irisConnection.connection.close();
+        return nsComponents;
+    }
+    logChannel.debug(`Query ${oResultSet.getString('QueryName')} executed successfully`);
+
+    if (!oResultSet.invokeBoolean('%Next')) {
+        logChannel.debug('No namespaces found');
+        return nsComponents;
+    }
+
+    do {
+        const sName = oResultSet.invokeString('Get', 'Namespace');
+        const sGlobalsDatabase = oResultSet.invokeString('Get', 'Globals') || '';
+        const sRoutinesDatabase = oResultSet.invokeString('Get', 'Routines') || '';
+        logChannel.debug('Namespace: ' + sName + ', Globals: ' + sGlobalsDatabase + ', Routines: ' + sRoutinesDatabase);
+        if (sName) {
+            const namespace = focusedServer.addComponent(
+                `${sName} namespace`,
+                `Globals in ${sGlobalsDatabase}, Routines in ${sRoutinesDatabase}`,
+                'ns',
+                'Namespace'
+            )!;
+            if (sName !== '%ALL') {
+                namespace.url = getPortalUrl(irisConnection.serverSpec, '/csp/sys/exp/%25CSP.UI.Portal.GlobalList.zen', `$NAMESPACE=${sName}`);
+            }
+            nsComponents.set(sName, namespace);
+            namespace.tags.add(sName === '%ALL' ? 'aPseudoNamespace' : 'aNamespace');
+            const dbGlobals = dbComponents.get(sGlobalsDatabase);
+            if (dbGlobals) {
+                if (sGlobalsDatabase === sRoutinesDatabase) {
+                    namespace.uses(dbGlobals, 'accesses', 'Globals and Routines');
+                } else {
+                    namespace.uses(dbGlobals, 'accesses', 'Globals');
+                }
+            }
+            if (sGlobalsDatabase !== sRoutinesDatabase) {
+                const dbRoutines = dbComponents.get(sRoutinesDatabase);
+                if (dbRoutines) {
+                    namespace.uses(dbRoutines, 'accesses', 'Routines');
+                }
+            }
+        }
+
+    } while (oResultSet.invokeBoolean('%Next'));
+    return nsComponents;
 }
