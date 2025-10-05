@@ -70,8 +70,28 @@
         "command": "georgejames.config-explorer.explore",
         "category": "gj :: configExplorer",
         "title": "Explore InterSystems IRIS Configuration"
+      },
+      {
+        "command": "georgejames.config-explorer.intersystems-servermanager",
+        "title": "gj :: configExplorer",
+        "icon": "$(circuit-board)"
       }
-    ]
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "georgejames.config-explorer.intersystems-servermanager",
+          "when": "false"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "georgejames.config-explorer.intersystems-servermanager",
+          "when": "view == intersystems-community_servermanager && viewItem =~ /\\.server\\./",
+          "group": "inline@90"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

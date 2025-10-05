@@ -43,10 +43,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	if (!hasDocker()) {
 		throw new Error(`The 'gj :: configExplorer' extension requires Docker Engine to be installed`);
 	}
-	
+
 	context.subscriptions.push(
-		vscode.commands.registerCommand(`${extensionId}.explore`, async (serverName?: string) => {
-			logChannel.debug('Explore command invoked');
+		vscode.commands.registerCommand(`${extensionId}.intersystems-servermanager`, async (serverTreeItem) => {
+			logChannel.debug('Command invoked from intersystems-servermanager');
+			const idArray: string[] = serverTreeItem.id.split(':');
+			let serverName: string | undefined = idArray[1];
 			const scope: vscode.ConfigurationScope | undefined= undefined;
 
 			const structurizrLite = await StructurizrLite.getInstance();
@@ -56,7 +58,7 @@ export async function activate(context: vscode.ExtensionContext) {
 					return;
 				}
 			}
-			
+
 			const serverSpec: serverManager.IServerSpec | undefined = await serverManagerApi.getServerSpec(serverName, scope);
 			if (!serverSpec) {
 				vscode.window.showErrorMessage(`Server '${serverName}' unknown`);
