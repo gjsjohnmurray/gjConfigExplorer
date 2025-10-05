@@ -1,11 +1,11 @@
 {
   "name": "config-explorer",
   "displayName": "gj :: configExplorer",
-  "description": "Use Structurizr diagrams to explore the configuration of InterSystems IRIS servers defined in InterSystems Server Manager",
+  "description": "Use Structurizr diagrams to explore the configurations of InterSystems IRIS servers defined in InterSystems Server Manager",
   "version": "0.0.1-SNAPSHOT",
   "preview": true,
   "publisher": "georgejames",
-  "icon": "images/extension-icon.png",
+  "icon": "images/logo.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/gjsjohnmurray/gjConfigExplorer"
@@ -96,9 +96,7 @@
   "dependencies": {
     "@intersystems/intersystems-iris-native": "^2.0.2",
     "@intersystems-community/intersystems-servermanager": "^3.10.2",
-    "axios": "^1.12.2",
-    "portfinder": "^1.0.38",
-    "structurizr-typescript": "^1.0.15"
+    "axios": "^1.12.2"
   },
   "devDependencies": {
     "@types/glob": "^8.0.0",
