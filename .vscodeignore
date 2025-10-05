@@ -16,3 +16,4 @@
 !package.json
 !package.nls.json
 !server/
+node_modules/@intersystems/intersystems-iris-native/**
