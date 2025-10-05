@@ -17,4 +17,7 @@
 	"objectscript.conn": {
         "active": false
     },
+    "git.branchProtection": [
+        "main"
+    ],
 }

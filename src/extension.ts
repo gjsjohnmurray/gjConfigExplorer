@@ -4,7 +4,6 @@ import * as serverManager from '@intersystems-community/intersystems-servermanag
 import * as cp from 'child_process';
 import { IRISConnection } from './iris';
 import { hasDocker, StructurizrLite } from './structurizrLite';
-import { monkeyWorkspace } from './monkeyWorkspace';
 import { workspaceForConnectedServer } from './jsonWorkspaceForConnectedServer';
 //import { makeRESTRequest } from './makeRESTRequest';
 
@@ -43,20 +42,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	if (!hasDocker()) {
 		throw new Error(`The 'gj :: configExplorer' extension requires Docker Engine to be installed`);
 	}
-	
+
 	context.subscriptions.push(
-		vscode.commands.registerCommand(`${extensionId}.explore`, async (serverName?: string) => {
-			logChannel.debug('Explore command invoked');
+		vscode.commands.registerCommand(`${extensionId}.intersystems-servermanager`, async (serverTreeItem) => {
+			logChannel.debug('Command invoked from intersystems-servermanager');
+			const idArray: string[] = serverTreeItem.id.split(':');
+			const serverName = idArray[1];
 			const scope: vscode.ConfigurationScope | undefined= undefined;
 
-			const structurizrLite = await StructurizrLite.getInstance();
-			if (!serverName) {
-				serverName = await serverManagerApi.pickServer();
-				if (!serverName) {
-					return;
-				}
-			}
-			
+			await StructurizrLite.getInstance();
+
 			const serverSpec: serverManager.IServerSpec | undefined = await serverManagerApi.getServerSpec(serverName, scope);
 			if (!serverSpec) {
 				vscode.window.showErrorMessage(`Server '${serverName}' unknown`);

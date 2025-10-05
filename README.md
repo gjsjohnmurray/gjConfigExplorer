@@ -12,16 +12,30 @@ This VS Code extension leverages [Structurizr Lite](https://docs.structurizr.com
 
 > By default, servers run their superserver on port 1972. If any of your servers use a different port you must set this on the `port` property of the `superServer` object of your server definition. Do this by editing the JSON of your settings.
 
-3. The first request for configuration diagrams in a VS Code session will produce a progress notification in the lower right corner while Structurizr Lite is started. This may take up to 45 seconds.
+3. On the chosen server in the tree, click the button whose hover text is 'Explore Configuration'.
 
-4. The diagrams are displayed in your default web browser at a URL of the format `http://localhost:NNNN/workspace/diagrams` where `NNNN` is the free local port mapped to a web server running insode the Structurizr Lite container. This page may take a little while to load when first used.
+> The first request for configuration diagrams in a VS Code session will produce a progress notification in the lower right corner while Structurizr Lite is started. This may take up to 45 seconds.
+
+4. The diagrams are displayed in your default web browser at a URL of the format `http://localhost:NNNN/workspace/diagrams` where `NNNN` is the free local port mapped to a web server running inside the Structurizr Lite container. This page may take a little while to load when first used.
+
+> Each time you click an 'Explore Configuration' button a new tab opens in your browser. To avoid confusion we recommend you close the previously-opened tab, because interacting with it will now display the diagrams for the most recently explored server in place of those of the original one.
 
 ## Release Notes
 
 See the [CHANGELOG](CHANGELOG.md) for changes in each release.
 
 ## Known Issues
-1. VS Code's extension host process crashes when this extension activates on Windows. We suspect that the `@intersystems/intersystems-iris-native` package, version 2.0.2, has a bug that causes this. The problem doesn't happen on Linux, nor probably on macOS. 
+1. VS Code's extension host process crashes when this extension activates on Windows. We suspect that the `@intersystems/intersystems-iris-native` package version 2.0.2 has a bug that causes this. The problem doesn't happen on Linux, nor probably on macOS. We are therefore publishing platform-specific versions of the extension, but only for Linux and macOS.
+
+2. The extension VSIX is very large, so installation takes a noticeable time. We hope to reduce its size significantly in a future release.
+
+## Plans
+1. Diagrams for more configuration components.
+2. Hide preconfigured entities such as IRIS* and ENS* databases and namespaces.
+
+## Feedback
+
+Please use https://github.com/gjsjohnmurray/gjConfigExplorer/issues to report bugs and suggest improvements.
 
 ## About George James Software
 
