@@ -4,13 +4,29 @@ import { logChannel } from './extension';
 import * as irisNative from '@intersystems/intersystems-iris-native';
 
 export class IRISConnection extends Disposable{
-	public connection: any;
-	public iris: any;
+	public readonly connection: irisNative.Connection | null = null;
+	public readonly iris: irisNative.Iris | null = null;
+	public readonly serverSpec: serverManager.IServerSpec | null = null;
 	constructor(serverSpec: serverManager.IServerSpec) {
 		super(() => {
 			logChannel.debug(`IRISConnection disposed`);
-			this.connection?.close();
+			if (!this.connection) {
+				logChannel.debug('No connection to close');
+				return;
+			}
+			if (this.connection.isClosed()) {
+				logChannel.debug('Connection already closed');
+				return;
+			}
+			this.connection.close();
+			if (!this.connection.isClosed()) {
+				logChannel.debug('Connection failed to close');
+				return;
+			}
+			logChannel.debug('Closed connection');
 		});
+
+		this.serverSpec = serverSpec;
 
 		const connectionInfo: irisNative.ConnectionInfo = {
 			host: serverSpec.superServer?.host ?? serverSpec.webServer.host,
@@ -29,18 +45,11 @@ export class IRISConnection extends Disposable{
 			if (this.connection) {
 				this.iris = this.connection.createIris();
 			}
-
-			if (this.iris) {
-				try {
-					const initObject = JSON.parse(this.iris.classMethodValue('PolyglotKernel.CodeExecutor', 'Init'));
-					logChannel.debug(`IRISConnection Init: ${JSON.stringify(initObject)}`);
-				} catch (error) {
-					logChannel.debug(`IRISConnection Init failed: ${error}`);
-				}
-			}
-
 		} catch (error) {
 			logChannel.error(`IRISConnection error: ${error}`);
-	}
+			this.connection?.close();
+			this.connection = null;
+			this.iris = null;
+		}
 	}
 }

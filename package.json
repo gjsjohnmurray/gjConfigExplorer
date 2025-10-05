@@ -5,7 +5,7 @@
   "version": "0.0.1-SNAPSHOT",
   "preview": true,
   "publisher": "georgejames",
-  "icon": "images/logo.png",
+  "icon": "images/extension-icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/gjsjohnmurray/gjConfigExplorer"
@@ -96,7 +96,9 @@
   "dependencies": {
     "@intersystems/intersystems-iris-native": "^2.0.2",
     "@intersystems-community/intersystems-servermanager": "^3.10.2",
-    "axios": "^1.12.2"
+    "axios": "^1.12.2",
+    "portfinder": "^1.0.38",
+    "structurizr-typescript": "^1.0.15"
   },
   "devDependencies": {
     "@types/glob": "^8.0.0",
