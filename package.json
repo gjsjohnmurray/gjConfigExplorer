@@ -2,7 +2,7 @@
   "name": "config-explorer",
   "displayName": "gj :: configExplorer",
   "description": "Use Structurizr diagrams to explore the configuration of InterSystems IRIS servers defined in InterSystems Server Manager",
-  "version": "0.0.2-SNAPSHOT",
+  "version": "0.0.2",
   "preview": true,
   "publisher": "georgejames",
   "icon": "images/extension-icon.png",
@@ -97,7 +97,16 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "package": "vsce package"
+    "package": "npm run package-darwin-arm64 && npm run package-darwin-x64 && npm run package-linux-arm64 && npm run package-linux-x64",
+    "package-darwin-arm64": "vsce package --target darwin-arm64 --ignoreFile .vscodeignore_darwin-arm64",
+    "package-darwin-x64": "vsce package --target darwin-x64 --ignoreFile .vscodeignore_darwin-x64",
+    "package-linux-arm64": "vsce package --target linux-arm64 --ignoreFile .vscodeignore_linux-arm64",
+    "package-linux-x64": "vsce package --target linux-x64 --ignoreFile .vscodeignore_linux-x64",
+    "publish": "npm run publish-darwin-arm64 && npm run publish-darwin-x64 && npm run publish-linux-arm64 && npm run publish-linux-x64",
+    "publish-darwin-arm64": "vsce publish --target darwin-arm64 --ignoreFile .vscodeignore_darwin-arm64",
+    "publish-darwin-x64": "vsce publish --target darwin-x64 --ignoreFile .vscodeignore_darwin-x64",
+    "publish-linux-arm64": "vsce publish --target linux-arm64 --ignoreFile .vscodeignore_linux-arm64",
+    "publish-linux-x64": "vsce publish --target linux-x64 --ignoreFile .vscodeignore_linux-x64"
   },
   "dependencies": {
     "@intersystems/intersystems-iris-native": "^2.0.2",
