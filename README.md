@@ -27,8 +27,6 @@ See the [CHANGELOG](CHANGELOG.md) for changes in each release.
 ## Known Issues
 1. VS Code's extension host process crashes when this extension activates on Windows. We suspect that the `@intersystems/intersystems-iris-native` package version 2.0.2 has a bug that causes this. The problem doesn't happen on Linux, nor probably on macOS. We are therefore publishing platform-specific versions of the extension, but only for Linux and macOS.
 
-2. The extension VSIX is very large, so installation takes a noticeable time. We hope to reduce its size significantly in a future release.
-
 ## Plans
 1. Diagrams for more configuration components.
 2. Hide preconfigured entities such as IRIS* and ENS* databases and namespaces.

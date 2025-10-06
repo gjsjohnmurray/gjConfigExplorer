@@ -1,0 +1,21 @@
+# Run 'vsce ls' to verify that the following lines exclude everything not needed in the VSIX.
+
+**
+!dist/*.js
+!dist/*.txt
+
+#!node_modules/@intersystems/intersystems-iris-native/bin/lnx*arm64/
+# Still too big for VSIX to publish (upload timeout) so limit to Ubuntu
+!node_modules/@intersystems/intersystems-iris-native/bin/lnxubuntu*arm64/
+
+!node_modules/@intersystems/intersystems-iris-native/src/
+!node_modules/@intersystems/intersystems-iris-native/package.json
+!node_modules/decimal.js/
+!node_modules/yargs/
+!out/
+!images/
+!CHANGELOG.md
+!LICENSE
+!README.md
+!package.json
+!package.nls.json
