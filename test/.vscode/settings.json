@@ -1,6 +1,6 @@
 {
 	"intersystems.servers": {
-		"test-docker-folder": {
+		"iris": {
 			"webServer": {
 				"scheme": "http",
 				"host": "localhost",
@@ -14,6 +14,10 @@
 			"username": "SuperUser",
 			"password": "SYS",
 		},
-		"/default": "test-docker-folder",
+	},
+	"objectscript.conn": {
+		"server": "iris",
+		"ns": "USER",
+		"active": true,
 	}
 }

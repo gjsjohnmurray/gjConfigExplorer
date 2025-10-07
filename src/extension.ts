@@ -48,9 +48,13 @@ export async function activate(context: vscode.ExtensionContext) {
 			logChannel.debug('Command invoked from intersystems-servermanager');
 			const idArray: string[] = serverTreeItem.id.split(':');
 			const serverName = idArray[1];
-			const scope: vscode.ConfigurationScope | undefined = undefined;
-
-			await StructurizrLite.getInstance();
+			let scope: vscode.ConfigurationScope | undefined;
+			if (vscode.window.activeTextEditor) {
+				scope = vscode.window.activeTextEditor.document.uri;
+			} 
+			else if (vscode.workspace.workspaceFolders) {
+				scope = vscode.workspace.workspaceFolders[0].uri;
+			}
 
 			const serverSpec: serverManager.IServerSpec | undefined = await serverManagerApi.getServerSpec(serverName, scope);
 			if (!serverSpec) {
@@ -95,6 +99,8 @@ export async function activate(context: vscode.ExtensionContext) {
 				vscode.window.showErrorMessage(`No usable IRIS connection for server '${serverName}'`);
 				return;
 			}
+			
+			await StructurizrLite.getInstance();
 
 			const workspace = workspaceForConnectedServer(irisConnection);
 			if (!workspace) {
