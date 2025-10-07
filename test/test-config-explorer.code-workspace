@@ -9,6 +9,22 @@
 			"dem-deltanji": {
 				"enabled": true
 			}
-		}
+		},
+		"intersystems.servers": {
+			"test-docker-workspace": {
+				"webServer": {
+					"scheme": "http",
+					"host": "localhost",
+					"port": 52773,
+					"pathPrefix": "/iris",
+				},
+				"superServer": {
+					"host": "localhost",
+					"port": 1972,
+				},
+				"username": "SuperUser",
+				"password": "SYS",
+			},
+		},
 	}
 }

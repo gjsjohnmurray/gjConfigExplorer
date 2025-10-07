@@ -48,7 +48,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			logChannel.debug('Command invoked from intersystems-servermanager');
 			const idArray: string[] = serverTreeItem.id.split(':');
 			const serverName = idArray[1];
-			const scope: vscode.ConfigurationScope | undefined= undefined;
+			const scope: vscode.ConfigurationScope | undefined = undefined;
 
 			await StructurizrLite.getInstance();
 

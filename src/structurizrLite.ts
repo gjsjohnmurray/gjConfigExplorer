@@ -15,11 +15,15 @@ export class StructurizrLite {
     static instance: StructurizrLite;
     public static async getInstance(): Promise<StructurizrLite> {
         if (!StructurizrLite.instance) {
+            const jsonFilePath = jsonUri.fsPath;
+            // Create a stub workspace file to prevent container from writing its own, which can cause permission issues when we want to replace it later
+            await vscode.workspace.fs.writeFile(jsonUri, new TextEncoder().encode('{}\n'));
+            logChannel.debug(`Wrote stub workspace file to ${jsonFilePath} before starting Structurizr Lite`);
             StructurizrLite.instance = new StructurizrLite();
             const port = await portfinder.getPort({});
             StructurizrLite.containerName = createRandomString();
-            const ws = path.dirname(jsonUri.fsPath);
-            logChannel.debug(`Starting Structurizr Lite container ${StructurizrLite.containerName} on port ${port} to view ${jsonUri.fsPath}`);
+            const ws = path.dirname(jsonFilePath);
+            logChannel.debug(`Starting Structurizr Lite container ${StructurizrLite.containerName} on port ${port} to view ${jsonFilePath}`);
             
             cp.exec(
                 `docker run -p 127.0.0.1:${port}:8080 --name ${StructurizrLite.containerName} -v "${ws}:/usr/local/structurizr" structurizr/lite:latest`,
