@@ -11,7 +11,7 @@
 			}
 		},
 		"intersystems.servers": {
-			"test-docker-workspace": {
+			"iris": {
 				"webServer": {
 					"scheme": "http",
 					"host": "localhost",
@@ -25,6 +25,11 @@
 				"username": "SuperUser",
 				"password": "SYS",
 			},
+		},
+		"objectscript.conn": {
+			"server": "iris",
+			"ns": "USER",
+			"active": true
 		},
 	}
 }

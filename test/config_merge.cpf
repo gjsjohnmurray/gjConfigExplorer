@@ -1,0 +1,11 @@
+# Referenced by ISC_CPF_MERGE_FILE env variable when starting our test IRIS container
+
+# Fake an ECP server even though the Community image's built-in license can't actually use ECP
+[ECPServers]
+DS-A=fakeDataserverA.iris.local,1972
+DS-B=fakeDataserverB.iris.local,1972
+
+# Fake some remote databases on those servers
+[Databases]
+DS-A_APP-DATA=/dbs/app-data/,DS-A
+DS-B_APP-DATA=/dbs/app-data/,DS-B
