@@ -2,7 +2,7 @@
   "name": "config-explorer",
   "displayName": "gj :: configExplorer",
   "description": "Use Structurizr diagrams to explore the configuration of InterSystems IRIS servers defined in InterSystems Server Manager",
-  "version": "0.0.3-SNAPSHOT",
+  "version": "0.0.4-SNAPSHOT",
   "preview": true,
   "publisher": "georgejames",
   "icon": "images/extension-icon.png",
