@@ -86,7 +86,7 @@ export function workspaceForConnectedServer(irisConnection: IRISConnection): Wor
     viewContainer.addNearestNeighbours(focusedServer);
     viewContainer.automaticLayout = autoLayout;
 
-    const dbComponents = addDatabases(irisConnection, focusedServer);
+    const dbComponents = addDatabases(irisConnection, focusedServer, false);
     const nsComponents = addNamespaces(irisConnection, focusedServer, dbComponents);
 
     const viewComponents = workspace.views.createComponentView(
@@ -156,7 +156,7 @@ function addECPServers(irisConnection: IRISConnection, softwareSystem: SoftwareS
     } while (oResultSet.invokeBoolean('%Next'));
 }
 
-function addDatabases(irisConnection: IRISConnection, focusedServer: Container): Map<string, Component> {
+function addDatabases(irisConnection: IRISConnection, focusedServer: Container, showSystemDBs: boolean): Map<string, Component> {
     const dbComponents = new Map<string, Component>();
     if (!irisConnection.connection || !irisConnection.iris) {
         return dbComponents;
@@ -187,6 +187,11 @@ function addDatabases(irisConnection: IRISConnection, focusedServer: Container):
         const sServer = oResultSet.invokeString('Get', 'Server');
         logChannel.debug('Database: ' + sName + ', Directory: ' + sDirectory + ', Server: ' + sServer);
         if (sName) {
+            const isSystemDb = sServer ? false : irisConnection.iris.classMethodBoolean('SYS.Database', 'IsSystemDB', sDirectory) || false;
+            if (isSystemDb && !showSystemDBs) {
+                logChannel.debug(`Skipping system database ${sName}`);
+                continue;
+            }
             const database = focusedServer.addComponent(
                 `${sName} database`,
                 `${sServer ? `On ECP server ${sServer}` : 'Local'} at ${sDirectory}`,
@@ -197,10 +202,11 @@ function addDatabases(irisConnection: IRISConnection, focusedServer: Container):
                 database.url = getPortalUrl(irisConnection.serverSpec, '/csp/sys/mgr/%25CSP.UI.Portal.RemoteDatabases.zen');
             }
             else {
+                // Determine if this is a system database
                 database.url = getPortalUrl(irisConnection.serverSpec, '/csp/sys/op/%25CSP.UI.Portal.DatabaseDetails.zen', `$ID1=${sDirectory}&DBName=${sName}`);
             }
             dbComponents.set(sName, database);
-            database.tags.add(sServer ? 'aRemoteDatabase' : sName?.startsWith('IRIS') ? 'aSystemDatabase' : 'aDatabase');
+            database.tags.add(sServer ? 'aRemoteDatabase' : isSystemDb ? 'aSystemDatabase' : 'aDatabase');
         }
 
     } while (oResultSet.invokeBoolean('%Next'));
