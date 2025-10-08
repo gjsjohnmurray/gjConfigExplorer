@@ -49,7 +49,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			const idArray: string[] = serverTreeItem.id.split(':');
 			const serverName = idArray[1];
 			let scope: vscode.ConfigurationScope | undefined;
-			if (vscode.window.activeTextEditor) {
+			if (vscode.window.activeTextEditor && vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri)) {
 				scope = vscode.window.activeTextEditor.document.uri;
 			} 
 			else if (vscode.workspace.workspaceFolders) {
