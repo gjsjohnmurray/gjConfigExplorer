@@ -24,7 +24,7 @@ export class StructurizrLite {
             StructurizrLite.containerName = createRandomString();
             const ws = path.dirname(jsonFilePath);
             logChannel.debug(`Starting Structurizr Lite container ${StructurizrLite.containerName} on port ${port} to view ${jsonFilePath}`);
-            
+
             cp.exec(
                 `docker run -p 127.0.0.1:${port}:8080 --name ${StructurizrLite.containerName} -v "${ws}:/usr/local/structurizr" structurizr/lite:latest`,
                 function (error, stdout, stderr) {
@@ -43,7 +43,8 @@ export class StructurizrLite {
                 cancellable: false,
                 },
                 async (progress) => {
-                    const SECS_TO_WAIT = 90;
+					// Allow lots of time for the container to start up, as it may need to download the image
+                    const SECS_TO_WAIT = 180;
                     const SECS_PER_STEP = 1;
                     const start = Date.now();
                     logChannel.debug(`Waiting ${SECS_TO_WAIT} seconds for Structurizr Lite to start...`);
