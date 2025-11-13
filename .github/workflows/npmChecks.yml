@@ -1,7 +1,7 @@
-name: Check Outdated npm Packages
+name: Check for outdated npm packages
 on:
   schedule:
-  - cron: '55 10 * * 4' # Runs every Thursday at 10:55 UTC
+  - cron: '15 11 * * 4' # Runs every Thursday at 11:15 UTC
 
 jobs:
   check-outdated:
@@ -18,6 +18,5 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Check for outdated package
-        #run: npm outdated @intersystems/intersystems-iris-native || echo "@intersystems/intersystems-iris-native is up to date"
-        run: npm outdated || echo "All packages are up to date"
+      - name: Check for outdated packages
+        run: npm outdated || echo "All packages are up to date" #npm outdated @intersystems/intersystems-iris-native || echo "@intersystems/intersystems-iris-native is up to date"
