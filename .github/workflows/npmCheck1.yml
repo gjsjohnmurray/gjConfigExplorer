@@ -1,7 +1,7 @@
-name: Fail if InterSystems npm package is outdated
+name: Error if InterSystems npm package is outdated
 on:
   schedule:
-  - cron: '45 12 * * 4' # Runs every Thursday at 12:45 UTC
+  - cron: '00 23 * * 1-5' # Runs every weekday at 23:00 UTC
 
 jobs:
   check-if-outdated:
@@ -15,11 +15,8 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Show npm version
-        run: npm --version
-
       - name: Install dependencies
         run: npm install
 
-      - name: Check for outdated ISC package
+      - name: Return non-zero exit code if ISC package is outdated
         run: npm outdated @intersystems/intersystems-iris-native
