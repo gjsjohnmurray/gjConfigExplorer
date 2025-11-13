@@ -1,10 +1,10 @@
-name: Check for any outdated npm packages
+name: Check for *any* outdated npm packages
 on:
   schedule:
-  - cron: '50 11 * * 4' # Runs every Thursday at 11:50 UTC
+  - cron: '27 12 * * 4' # Runs every Thursday at 12:27 UTC
 
 jobs:
-  check-npm-any-outdated:
+  check-npm-any-is-outdated:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -19,4 +19,4 @@ jobs:
         run: npm install
 
       - name: Check for any outdated packages
-        run: npm outdated || echo "All packages are up to date"
+        run: npm outdated

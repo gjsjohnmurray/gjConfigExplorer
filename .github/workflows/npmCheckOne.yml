@@ -1,10 +1,10 @@
-name: Check for outdated InterSystems npm package
+name: Check for outdated *InterSystems* npm package
 on:
   schedule:
-  - cron: '45 11 * * 4' # Runs every Thursday at 11:45 UTC
+  - cron: '25 12 * * 4' # Runs every Thursday at 12:25 UTC
 
 jobs:
-  check-npm-isc-outdated:
+  check-npm-isc-is-outdated:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -19,4 +19,4 @@ jobs:
         run: npm install
 
       - name: Check for outdated ISC package
-        run: npm outdated @intersystems/intersystems-iris-native || echo "@intersystems/intersystems-iris-native is up to date"
+        run: npm outdated @intersystems/intersystems-iris-native
