@@ -109,7 +109,7 @@
     "publish-linux-x64": "vsce publish --target linux-x64 --ignoreFile .vscodeignore_linux-x64"
   },
   "dependencies": {
-    "@intersystems/intersystems-iris-native": "^2.0.2",
+    "@intersystems/intersystems-iris-native": "2.0.2",
     "@intersystems-community/intersystems-servermanager": "^3.10.2",
     "axios": "^1.12.2",
     "portfinder": "^1.0.38",
