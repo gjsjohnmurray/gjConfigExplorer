@@ -1,7 +1,7 @@
 # Derived from intersystems/language-server CI workflow
-# Disabled Windows builds due to EH crashes. Disable alpine builds as a precaution (not yet tested on that platform).
+# Disable alpine builds as a precaution (not yet tested on that platform).
 # Originally as below:
-# platarch: [win32-x64, win32-arm64, linux-x64, linux-arm64, alpine-x64, alpine-arm64, darwin-x64, darwin-arm64]
+# platarch: [win32-x64, linux-x64, linux-arm64, alpine-x64, alpine-arm64, darwin-x64, darwin-arm64]
 
 name: CI
 permissions:
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platarch: [linux-x64, linux-arm64, darwin-x64, darwin-arm64]
+        platarch: [win32-x64, linux-x64, linux-arm64, darwin-x64, darwin-arm64]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
