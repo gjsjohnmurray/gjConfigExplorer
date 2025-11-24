@@ -45,7 +45,7 @@
           "patternProperties": {
             "[a-z0-9-_~]+": {
               "type": "object",
-              "markdownDescription": "Specify an entry defined in `intersystems.servers`. That entry must have its `superServer` object property defined.",
+              "markdownDescription": "Specify an entry defined in `intersystems.servers`. The entry must have its `superServer` object property defined.",
               "description": "server",
               "properties": {
                 "enabled": {
